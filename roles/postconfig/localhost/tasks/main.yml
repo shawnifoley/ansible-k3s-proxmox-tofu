@@ -1,0 +1,24 @@
+---
+- name: test kubeconfig path
+  stat:
+    path: ~/.kube/config
+  register: kubeconfig_path
+
+- name: replace host ip address in the kubeconfig
+  replace:
+    path: ~/.kube/config
+    regexp: "https://127.0.0.1:6443"
+    replace: "https://{{ master_ip }}:6443"
+  when: kubeconfig_path and copy_kubeconfig
+
+- name: Change k3s.yaml permissions to 644
+  file:
+    path: ~/.kube/config
+    mode: "600"
+
+- name: Install argocd
+  shell: |
+    kubectl create namespace argocd
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "{{ argocd_service_type }}"}}'
+  when: argocd
