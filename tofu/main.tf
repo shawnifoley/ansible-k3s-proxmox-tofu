@@ -1,3 +1,7 @@
+locals {
+  sshkey = file(var.pub_key)
+}
+
 resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
   count       = var.num_k3s_masters
   name        = "k3s-master${count.index + 1}"
@@ -31,14 +35,10 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
       }
     }
 
-    locals {
-      sshkey = file(var.pvt_key)
-    }
-
     user_account {
       keys     = [local.sshkey]
       password = var.pm_password
-      username = var.pm_user
+      username = var.host_user
     }
 
   }
@@ -80,14 +80,10 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
       }
     }
 
-    locals {
-      sshkey = file(var.pvt_key)
-    }
-
     user_account {
       keys     = [local.sshkey]
       password = var.pm_password
-      username = var.pm_user
+      username = var.host_user
     }
 
   }

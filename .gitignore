@@ -2,5 +2,4 @@ tofu/terraform.tfstate
 tofu/terraform.tfstate.backup
 tofu/.terraform.lock.hcl
 tofu/.terraform
-tofu/variables.tfvars
 tofu/.terraform.tfstate.lock.info

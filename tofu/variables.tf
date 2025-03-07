@@ -28,10 +28,29 @@ variable "pm_node_name" {
   default     = "pve"
 }
 
-variable "pvt_key" {}
+variable "host_user" {
+  description = "The username for the host user"
+  type        = string
+}
+
+variable "pvt_key" {
+  description = "Path to the private key file"
+  type        = string
+  default     = "~/.ssh/id_rsa"
+}
+
+variable "pub_key" {
+  description = "Path to the public key file"
+  type        = string
+  default     = "~/.ssh/id_rsa.pub"
+}
 
 variable "num_k3s_masters" {
   default = 1
+}
+
+variable "cpu_cores" {
+  default = "2"
 }
 
 variable "num_k3s_masters_mem" {
