@@ -11,10 +11,10 @@
   roles:
     - role: k3s/master
 
-- hosts: node
+- hosts: workers
   become: true
   roles:
-    - role: k3s/node
+    - role: k3s/workers
 
 - hosts: localhost
   connection: local
