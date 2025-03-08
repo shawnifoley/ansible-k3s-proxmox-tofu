@@ -29,6 +29,3 @@ ExecStartPre=-/sbin/modprobe overlay
 ExecStart=/usr/local/bin/k3s \
 server \
 --write-kubeconfig-mode 644 \
-{% if metallb is sameas true %}
---disable servicelb \
-{% endif %}

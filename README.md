@@ -65,5 +65,9 @@ ansible-playbook -i inventory/my-cluster/hosts.ini site.yml
 
 k3s cluster should be up and running with the playbook copying `~/.kube/config`
 
+### Kubernetes
+
+[kubectl reference](https://kubernetes.io/docs/reference/kubectl/quick-reference/)
+
 ### Argocd/Fluxcd
 todo
