@@ -60,12 +60,12 @@ variable "num_k3s_masters_mem" {
   default     = 4096
 }
 
-variable "num_k3s_nodes" {
+variable "num_k3s_workers" {
   type        = number
   default     = 2
 }
 
-variable "num_k3s_nodes_mem" {
+variable "num_k3s_workers_mem" {
   type        = number
   default     = 4096
 }

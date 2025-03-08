@@ -48,7 +48,7 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
 }
 
 resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
-  count       = var.num_k3s_nodes
+  count       = var.num_k3s_workers
   name        = "k3s-worker${count.index + 1}"
   node_name   = var.pm_node_name
 
@@ -63,7 +63,7 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
     cores = var.cpu_cores
   }
   memory {
-    dedicated = var.num_k3s_nodes_mem
+    dedicated = var.num_k3s_workers_mem
   }
   disk {
     datastore_id = var.datastore
@@ -94,14 +94,18 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
 
 resource "local_file" "k8s_file" {
   content = templatefile("./templates/k8s.tpl", {
-    k3s_master_ip = join("\n", [
-      for instance in proxmox_virtual_environment_vm.proxmox_vm_master :
-         "${instance.ipv4_addresses[1][0]} ansible_ssh_private_key_file=${var.pvt_key}"
-    ])
-    k3s_node_ip = join("\n", [
-      for instance in proxmox_virtual_environment_vm.proxmox_vm_workers :
-         "${instance.ipv4_addresses[1][0]} ansible_ssh_private_key_file=${var.pvt_key}"
-    ])
+    k3s_master_ips = [
+      for instance in proxmox_virtual_environment_vm.proxmox_vm_master : {
+        ip      = instance.ipv4_addresses[1][0]
+        ssh_key = var.pvt_key
+      }
+    ]
+    k3s_worker_ips = [
+      for instance in proxmox_virtual_environment_vm.proxmox_vm_workers : {
+        ip      = instance.ipv4_addresses[1][0]
+        ssh_key = var.pvt_key
+      }
+    ]
   })
   filename = "../inventory/my-cluster/hosts.ini"
 }
