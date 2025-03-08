@@ -12,13 +12,7 @@ Grab and update the image with qemu-guest-agent
 
 ```bash
 apt-get install libguestfs-tools
-```
-
-```bash
 wget https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
-```
-
-```bash
 virt-customize focal-server-cloudimg-amd64.img --install qemu-guest-agent
 ```
 
