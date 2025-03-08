@@ -53,7 +53,6 @@ Tofu setup the following inventory for ansible `inventory/my-cluster/hosts.ini`
 Start provisioning of the cluster using the following command:
 
 ```bash
-# run the playbook
 ansible-playbook -i inventory/my-cluster/hosts.ini site.yml
 ```
 
