@@ -10,11 +10,13 @@
   become: true
   roles:
     - role: k3s/master
+    - role: k3s/reboot
 
 - hosts: workers
   become: true
   roles:
     - role: k3s/workers
+    - role: k3s/reboot
 
 - hosts: localhost
   connection: local
