@@ -21,3 +21,22 @@
     kubectl create namespace argocd
     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
   when: argocd
+
+- name: Install metallb
+  shell: |
+    kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
+    kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+  when: metallb
+
+- name: configure metallb range
+  shell: |
+    cat <<EOF | kubectl apply -f -
+    apiVersion: metallb.io/v1beta1
+    kind: IPAddressPool
+    metadata:
+      name: default
+      namespace: metallb-system
+    spec:
+      addresses:
+       - {{ metallb_range }}
+  when: metallb
