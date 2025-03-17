@@ -1,0 +1,150 @@
+---
+- name: Enable IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: true
+
+- name: Enable IPv6 forwarding
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: "1"
+    state: present
+    reload: true
+
+- name: install nfs-common on the servers
+  package:
+    name: nfs-common
+    state: present
+
+- name: Download k3s binary x64
+  get_url:
+    url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s
+    checksum: sha256:https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/sha256sum-amd64.txt
+    dest: /usr/local/bin/k3s
+    owner: root
+    group: root
+    mode: 0755
+  when: ansible_facts.architecture == "x86_64"
+
+- name: Generate K3s token
+  shell: |
+    /usr/local/bin/k3s token generate
+  run_once: true
+  register: k3s_token
+  delegate_to: "{{ groups['master'][0] }}"
+  when:
+    - inventory_hostname in groups['master']
+    - inventory_hostname == groups['master'][0]
+
+- name: Store Master node-token
+  set_fact:
+    token: "{{ k3s_token.stdout | split('.') | last }}"
+  when: k3s_token.stdout is defined
+
+- name: Create K3s config directory
+  file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: "0755"
+
+# Master
+- name: Copy master K3s service file
+  register: master_k3s_service
+  template:
+    src: "master-k3s.service.j2"
+    dest: "{{ systemd_dir }}/k3s.service"
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['master']
+
+- name: Copy master K3s config.yaml file
+  template:
+    src: "master-config.yaml.j2"
+    dest: "/etc/rancher/k3s/config.yaml"
+    owner: root
+    group: root
+    mode: 0600
+  when: inventory_hostname in groups['master']
+
+- name: Enable and check K3s service on Master
+  systemd:
+    name: k3s
+    daemon_reload: true
+    state: restarted
+    enabled: true
+  when: inventory_hostname in groups['master']
+
+- name: Create directory .kube
+  file:
+    path: ~{{ ansible_user }}/.kube
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "u=rwx,g=rx,o="
+  when: inventory_hostname in groups['master']
+
+- name: Change k3s.yaml permissions to 644
+  file:
+    path: /etc/rancher/k3s/k3s.yaml
+    owner: "{{ ansible_user }}"
+    mode: "644"
+  when: inventory_hostname in groups['master']
+
+- name: Replace https://localhost:6443 by https://master-ip:6443
+  command: >-
+    k3s kubectl config set-cluster default
+      --server=https://{{ master_ip }}:6443
+      --kubeconfig ~{{ ansible_user }}/.kube/config
+  changed_when: true
+  when: inventory_hostname in groups['master']
+
+- name: Create kubectl symlink
+  file:
+    src: /usr/local/bin/k3s
+    dest: /usr/local/bin/kubectl
+    state: link
+  when: inventory_hostname in groups['master']
+
+- name: Create crictl symlink
+  file:
+    src: /usr/local/bin/k3s
+    dest: /usr/local/bin/crictl
+    state: link
+  when: inventory_hostname in groups['master']
+
+- name: copy config to local host
+  fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: ~/.kube/config
+    flat: true
+  when: inventory_hostname in groups['master']
+
+# Workers
+- name: Copy worker K3s service file
+  register: worker_k3s_service
+  template:
+    src: "worker-k3s.service.j2"
+    dest: "{{ systemd_dir }}/k3s.service"
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['workers']
+
+- name: Copy worker K3s config.yaml file
+  template:
+    src: "worker-config.yaml.j2"
+    dest: "/etc/rancher/k3s/config.yaml"
+    owner: root
+    group: root
+    mode: 0600
+  when: inventory_hostname in groups['workers']
+
+- name: Enable and check K3s service on Workers
+  systemd:
+    name: k3s
+    daemon_reload: true
+    state: restarted
+    enabled: true
+  when: inventory_hostname in groups['workers']

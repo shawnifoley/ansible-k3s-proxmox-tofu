@@ -16,17 +16,22 @@
     path: ~/.kube/config
     mode: "600"
 
+- name: Install metallb
+  shell: |
+    kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+  when: metallb
+
+- name: Wait for 60 seconds for metallb to start up
+  pause:
+    seconds: 60
+    prompt: "Waiting 60 seconds for metallb to start up..."
+  when: metallb
+
 - name: Install argocd
   shell: |
     kubectl create namespace argocd
     kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
   when: argocd
-
-- name: Install metallb
-  shell: |
-    kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
-    kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
-  when: metallb
 
 - name: configure metallb range
   shell: |
@@ -39,4 +44,21 @@
     spec:
       addresses:
        - {{ metallb_range }}
+
+    EOF
+  when: metallb
+
+- name: configure metallb l2advertisement
+  shell: |
+    cat <<EOF | kubectl apply -f -
+    apiVersion: metallb.io/v1beta1
+    kind: L2Advertisement
+    metadata:
+      name: default
+      namespace: metallb-system
+    spec:
+      ipAddressPools:
+      - default
+
+    EOF
   when: metallb
