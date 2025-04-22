@@ -1,0 +1,101 @@
+---
+- name: Install argocd
+  shell: |
+    kubectl create namespace argocd
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+  changed_when: true
+
+- name: Install Nginx Ingress Controller
+  shell: |
+    helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+    helm repo update
+    helm install nginx-ingress ingress-nginx/ingress-nginx \
+    --namespace ingress-nginx \
+    --create-namespace \
+    --set controller.publishService.enabled=true
+  changed_when: true
+
+- name: Install cert-manager
+  shell: |
+    helm repo add jetstack https://charts.jetstack.io
+    helm repo update
+    helm install \
+    cert-manager jetstack/cert-manager \
+    --namespace cert-manager \
+    --create-namespace \
+    --version v1.17.1 \
+    --set crds.enabled=true
+  changed_when: true
+
+- name: Create Cloudflare API Token Secret
+  environment:
+    CLOUDFLARE_API_TOKEN: "{{ cloudflare_api_token }}"
+  shell: |
+    kubectl create secret generic cloudflare-api-token-secret \
+      --namespace=cert-manager \
+      --from-literal=api-token="${CLOUDFLARE_API_TOKEN}"
+  changed_when: true
+
+- name: Create the Issuer
+  shell: |
+    kubectl apply -f - <<EOF
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt-cloudflare
+    spec:
+      acme:
+        email: "{{ cloudflare_email }}"
+        server: https://acme-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+          name: letsencrypt-cloudflare-private-key
+        solvers:
+        - dns01:
+            cloudflare:
+              email: "{{ cloudflare_email }}"
+              apiTokenSecretRef:
+                name: cloudflare-api-token-secret
+                key: api-token
+              zoneName: "fol3y.us"
+          selector:
+            dnszone: "fol3y.us"
+    EOF
+  changed_when: true
+
+- name: Wait for 60 seconds for nginx start up
+  pause:
+    seconds: 60
+    prompt: "Waiting 60 seconds for nginx start up..."
+
+- name: Create the Certificate
+  shell: |
+    kubectl apply -f - <<EOF
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: argocd-server-ingress
+      namespace: argocd
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    spec:
+      ingressClassName: nginx
+      tls:
+        - hosts:
+            - "{{ argocd_domain }}"
+          secretName: letsencrypt-cloudflare-private-key
+      rules:
+        - host: "{{ argocd_domain }}"
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: argocd-server
+                    port:
+                      number: 443
+    EOF
+  changed_when: true

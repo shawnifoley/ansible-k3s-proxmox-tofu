@@ -62,5 +62,147 @@ k3s cluster should be up and running with the playbook copying `~/.kube/config`
 
 [kubectl reference](https://kubernetes.io/docs/reference/kubectl/quick-reference/)
 
-### Argocd/Fluxcd
-todo
+### Argocd
+
+## 1. Check if ArgoCD Namespace Exists
+
+```bash
+kubectl get namespace argocd
+```
+
+## 2. Verify ArgoCD Components
+
+Check if the core ArgoCD pods are running:
+```bash
+kubectl get pods -n argocd
+```
+
+You should see several pods including:
+- argocd-application-controller
+- argocd-dex-server
+- argocd-redis
+- argocd-repo-server
+- argocd-server
+
+## 3. Check ArgoCD Deployments
+
+```bash
+kubectl get deployments -n argocd
+```
+
+## 4. Check ArgoCD Services
+
+```bash
+kubectl get services -n argocd
+```
+
+The service `argocd-server` is the main API and UI server.
+
+## 5. Get ArgoCD Server URL
+
+If using LoadBalancer or NodePort:
+```bash
+kubectl get svc argocd-server -n argocd
+```
+
+## 6. Get Initial Admin Password
+
+For ArgoCD versions before 2.x:
+```bash
+kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2
+```
+
+For ArgoCD versions 2.x+:
+```bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+## 7. Check ArgoCD Version
+
+```bash
+kubectl exec -it -n argocd deployment/argocd-server -- argocd version
+```
+
+## 8. Verify ArgoCD CLI (if installed locally)
+
+If you have the ArgoCD CLI installed:
+```bash
+argocd version
+```
+
+## 9. Check ArgoCD Applications
+
+```bash
+kubectl get applications -n argocd
+```
+
+Or using ArgoCD CLI:
+```bash
+argocd app list
+```
+
+## 10. Check ArgoCD Configuration
+
+```bash
+kubectl get configmap argocd-cm -n argocd
+kubectl get configmap argocd-rbac-cm -n argocd
+```
+
+### MetalLB
+
+## 1. Check if MetalLB Namespace Exists
+
+```bash
+kubectl get namespace metallb-system
+```
+
+## 2. Verify MetalLB Resources
+
+Check if the controller and speaker pods are running:
+```bash
+kubectl get pods -n metallb-system
+```
+
+Check the deployments:
+```bash
+kubectl get deployments -n metallb-system
+```
+
+Check the DaemonSets (for speaker):
+```bash
+kubectl get daemonsets -n metallb-system
+```
+
+## 3. Check MetalLB Configuration
+
+Verify the MetalLB configuration:
+```bash
+kubectl get configmap -n metallb-system
+```
+
+For newer versions using CRDs:
+```bash
+kubectl get ipaddresspools.metallb.io -A
+kubectl get l2advertisements.metallb.io -A
+```
+
+## 4. Check Logs for Issues
+
+Check logs of the controller:
+```bash
+kubectl logs -n metallb-system -l app=metallb,component=controller
+```
+
+Check logs of speaker pods:
+```bash
+kubectl logs -n metallb-system -l app=metallb,component=speaker
+```
+
+## 5. Test with a LoadBalancer Service
+
+Create a test service to verify MetalLB is assigning IPs:
+```bash
+kubectl create deployment nginx --image=nginx
+kubectl expose deployment nginx --port=80 --type=LoadBalancer
+kubectl get service nginx
+```
