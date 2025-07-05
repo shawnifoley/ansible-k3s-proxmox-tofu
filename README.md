@@ -47,7 +47,7 @@ tofu apply --var-file=variables.tfvars
 
 ### Ansible setup
 
-Tofu setup the following inventory for ansible `ansible/hosts.ini`
+Tofu setup the following inventory for ansible `ansible/hosts.ini`<br>
 Verify variables in `ansible/group_vars/all.yml`
 
 Start provisioning of the cluster using the following command:
