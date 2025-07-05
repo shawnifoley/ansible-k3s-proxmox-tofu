@@ -46,40 +46,40 @@ variable "pub_key" {
 }
 
 variable "num_k3s_masters" {
-  type        = number
-  default     = 1
+  type    = number
+  default = 1
 }
 
 variable "cpu_cores" {
-  type        = number
-  default     = 2
+  type    = number
+  default = 2
 }
 
 variable "num_k3s_masters_mem" {
-  type        = number
-  default     = 4096
+  type    = number
+  default = 4096
 }
 
 variable "num_k3s_workers" {
-  type        = number
-  default     = 2
+  type    = number
+  default = 2
 }
 
 variable "num_k3s_workers_mem" {
-  type        = number
-  default     = 4096
+  type    = number
+  default = 4096
 }
 
 variable "template_id" {
-  type        = number
-  default     = 1002
+  type    = number
+  default = 1002
 }
 variable "pool_id" {
-  type        = string
+  type = string
 }
 
 variable "tags" {
-  type        = list(string)
+  type = list(string)
 }
 
 variable "master_ips" {
@@ -93,40 +93,40 @@ variable "worker_ips" {
 }
 
 variable "networkrange" {
-  type        = number
-  default     = 24
+  type    = number
+  default = 24
 }
 
 variable "gateway" {
-  type        = string
-  default     = "192.168.1.254"
+  type    = string
+  default = "192.168.1.254"
 }
 
 variable "net_bridge" {
-  type        = string
-  default     = "vmbr0"
+  type    = string
+  default = "vmbr0"
 }
 
 variable "datastore" {
-  type        = string
-  default     = "local-lvm"
+  type    = string
+  default = "local-lvm"
 }
 
 variable "disk_interface" {
-  type        = string
-  default     = "scsi0"
+  type    = string
+  default = "scsi0"
 }
 
 variable "disk_discard" {
-  type        = string
-  default     = "on"
+  type    = string
+  default = "on"
 }
 
 variable "disk_size" {
-  type        = number
-  default     = 10
+  type    = number
+  default = 10
 }
 variable "disk_ssd" {
-  type        = bool
-  default     = true
+  type    = bool
+  default = true
 }

@@ -3,11 +3,11 @@ locals {
 }
 
 resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
-  count       = var.num_k3s_masters
-  name        = "k3s-master${count.index + 1}"
-  node_name   = var.pm_node_name
-  pool_id     = var.pool_id
-  tags        = var.tags
+  count     = var.num_k3s_masters
+  name      = "k3s-master${count.index + 1}"
+  node_name = var.pm_node_name
+  pool_id   = var.pool_id
+  tags      = var.tags
 
   clone {
     vm_id = var.template_id
@@ -44,17 +44,17 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
     }
 
   }
-    network_device {
+  network_device {
     bridge = var.net_bridge
   }
 }
 
 resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
-  count       = var.num_k3s_workers
-  name        = "k3s-worker${count.index + 1}"
-  node_name   = var.pm_node_name
-  pool_id     = var.pool_id
-  tags        = var.tags
+  count     = var.num_k3s_workers
+  name      = "k3s-worker${count.index + 1}"
+  node_name = var.pm_node_name
+  pool_id   = var.pool_id
+  tags      = var.tags
 
   clone {
     vm_id = var.template_id
@@ -91,7 +91,7 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
     }
 
   }
-    network_device {
+  network_device {
     bridge = var.net_bridge
   }
 }

@@ -107,20 +107,18 @@ kubectl get svc argocd-server -n argocd
 
 ## 6. Get Initial Admin Password
 
-For ArgoCD versions before 2.x:
-```bash
-kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2
-```
-
 For ArgoCD versions 2.x+:
 ```bash
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+or
+argocd admin initial-password -n argocd
 ```
 
-## 7. Check ArgoCD Version
+## 7. Update Admin Password
 
 ```bash
-kubectl exec -it -n argocd deployment/argocd-server -- argocd version
+argocd login <server address>
+argocd account update-password
 ```
 
 ## 8. Verify ArgoCD CLI (if installed locally)
