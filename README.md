@@ -47,13 +47,13 @@ tofu apply --var-file=variables.tfvars
 
 ### Ansible setup
 
-Update `inventory/my-cluster/group_vars/all.yml`
-Tofu setup the following inventory for ansible `inventory/my-cluster/hosts.ini`
+Tofu setup the following inventory for ansible `ansible/hosts.ini`
+Verify variables in `ansible/group_vars/all.yml`
 
 Start provisioning of the cluster using the following command:
 
 ```bash
-ansible-playbook -i inventory/my-cluster/hosts.ini main.yml
+ansible-playbook  main.yml
 ```
 
 k3s cluster should be up and running with the playbook copying `~/.kube/config`
