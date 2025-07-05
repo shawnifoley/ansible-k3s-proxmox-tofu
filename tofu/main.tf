@@ -111,5 +111,5 @@ resource "local_file" "k8s_file" {
       }
     ]
   })
-  filename = "../inventory/hosts.ini"
+  filename = "../ansible/hosts.ini"
 }

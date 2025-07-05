@@ -53,7 +53,7 @@ Tofu setup the following inventory for ansible `inventory/my-cluster/hosts.ini`
 Start provisioning of the cluster using the following command:
 
 ```bash
-ansible-playbook -i inventory/my-cluster/hosts.ini site.yml
+ansible-playbook -i inventory/my-cluster/hosts.ini main.yml
 ```
 
 k3s cluster should be up and running with the playbook copying `~/.kube/config`
