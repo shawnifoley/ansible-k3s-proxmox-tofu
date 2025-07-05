@@ -74,6 +74,13 @@ variable "template_id" {
   type        = number
   default     = 1002
 }
+variable "pool_id" {
+  type        = string
+}
+
+variable "tags" {
+  type        = list(string)
+}
 
 variable "master_ips" {
   type        = list(string)
