@@ -1,0 +1,62 @@
+---
+- name: Copy master K3s service file
+  ansible.builtin.register: master_k3s_service
+  template:
+    src: "master-k3s.service.j2"
+    dest: "{{ systemd_dir }}/k3s.service"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy master K3s config.yaml file
+  ansible.builtin.template:
+    src: "master-config.yaml.j2"
+    dest: "/etc/rancher/k3s/config.yaml"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Enable and check K3s service on Master
+  ansible.builtin.systemd:
+    name: k3s
+    daemon_reload: true
+    state: restarted
+    enabled: true
+
+- name: Create directory .kube
+  ansible.builtin.file:
+    path: ~{{ ansible_user }}/.kube
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "u=rwx,g=rx,o="
+
+- name: Change k3s.yaml permissions to 644
+  ansible.builtin.file:
+    path: /etc/rancher/k3s/k3s.yaml
+    owner: "{{ ansible_user }}"
+    mode: "644"
+
+- name: Replace https://localhost:6443 by https://master-ip:6443
+  ansible.builtin.command: >-
+    k3s kubectl config set-cluster default
+      --server=https://{{ master_ip }}:6443
+      --kubeconfig ~{{ ansible_user }}/.kube/config
+  changed_when: true
+
+- name: Create kubectl symlink
+  ansible.builtin.file:
+    src: /usr/local/bin/k3s
+    dest: /usr/local/bin/kubectl
+    state: link
+
+- name: Create crictl symlink
+  ansible.builtin.file:
+    src: /usr/local/bin/k3s
+    dest: /usr/local/bin/crictl
+    state: link
+
+- name: copy config to local host
+  ansible.builtin.fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: ~/.kube/config
+    flat: true
