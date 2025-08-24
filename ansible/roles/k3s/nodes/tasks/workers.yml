@@ -1,7 +1,6 @@
 ---
 - name: Copy worker K3s service file
-  ansible.builtin.register: worker_k3s_service
-  template:
+  ansible.builtin.template:
     src: "worker-k3s.service.j2"
     dest: "{{ systemd_dir }}/k3s.service"
     owner: root
