@@ -34,9 +34,15 @@ Move VM -> template
 qm template 1002
 ```
 
-### Tofu setup
+### Tofu setup (multi-deployment)
 
-edit `tofu/variables.tfvars` then run tofu to bring up the servers
+Use one tfvars file per deployment:
+- `tofu/variables.dev.tfvars`
+- `tofu/variables.prod.tfvars`
+
+Each deployment writes inventory to:
+- `ansible/inventory/dev/hosts.ini`
+- `ansible/inventory/prod/hosts.ini`
 
 ```bash
 cd tofu/
@@ -44,22 +50,33 @@ export TF_VAR_pm_api_password="your-proxmox-api-password"
 # optional if you also want password auth on created VMs (SSH keys are already configured)
 # export TF_VAR_vm_user_password="your-vm-user-password"
 tofu init
-tofu plan --var-file=variables.tfvars
-tofu apply --var-file=variables.tfvars
+
+# dev
+tofu plan --var-file=variables.dev.tfvars
+tofu apply --var-file=variables.dev.tfvars
+
+# prod
+tofu plan --var-file=variables.prod.tfvars
+tofu apply --var-file=variables.prod.tfvars
 ```
 
-### Ansible setup
+### Ansible setup (per deployment)
 
-Tofu setup the following inventory for ansible `ansible/hosts.ini`<br>
-Verify variables in `ansible/group_vars/all.yml`
-- `cert_manager: true` to install cert-manager
-- `cert_manager_create_cloudflare_secret: true` if you want this playbook to create the Cloudflare token secret
-- `argocd: true` to install ArgoCD (this now assumes `cert_manager: true` for TLS/issuer tasks)
+Common defaults live in `ansible/group_vars/all.yml`.<br>
+Environment overrides live in:
+- `ansible/inventory/dev/group_vars/all.yml`
+- `ansible/inventory/prod/group_vars/all.yml`
 
-Start provisioning of the cluster using the following command:
+Run with the target inventory:
 
 ```bash
-ansible-playbook  main.yml
+cd ansible/
+
+# dev
+ansible-playbook -i inventory/dev/hosts.ini main.yml
+
+# prod
+ansible-playbook -i inventory/prod/hosts.ini main.yml
 ```
 
 k3s cluster should be up and running with the playbook copying `~/.kube/config`

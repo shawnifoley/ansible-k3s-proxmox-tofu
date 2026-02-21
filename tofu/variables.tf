@@ -40,6 +40,12 @@ variable "host_user" {
   type        = string
 }
 
+variable "deployment_name" {
+  description = "Deployment/environment name used for VM naming and inventory output (e.g. dev, prod)"
+  type        = string
+  default     = "dev"
+}
+
 variable "pvt_key" {
   description = "Path to the private key file"
   type        = string

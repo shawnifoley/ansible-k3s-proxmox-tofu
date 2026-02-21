@@ -6,7 +6,7 @@ locals {
 
 resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
   count     = local.num_k3s_masters
-  name      = "k3s-master${count.index + 1}"
+  name      = "${var.deployment_name}-k3s-master${count.index + 1}"
   node_name = var.pm_node_name
   pool_id   = var.pool_id
   tags      = var.tags
@@ -53,7 +53,7 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
 
 resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
   count     = local.num_k3s_workers
-  name      = "k3s-worker${count.index + 1}"
+  name      = "${var.deployment_name}-k3s-worker${count.index + 1}"
   node_name = var.pm_node_name
   pool_id   = var.pool_id
   tags      = var.tags
@@ -113,5 +113,5 @@ resource "local_file" "k8s_file" {
       }
     ]
   })
-  filename = "../ansible/hosts.ini"
+  filename = "../ansible/inventory/${var.deployment_name}/hosts.ini"
 }
