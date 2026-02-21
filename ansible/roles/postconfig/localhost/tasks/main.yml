@@ -18,10 +18,11 @@
     path: "{{ lookup('env','HOME') }}/.kube/config"
     mode: "0600"
   when: kubeconfig_path.stat.exists
-#- name: Include MetalLB tasks
-#  ansible.builtin.include_tasks: metallb.yml
-#  when: metallb | bool
 
-#- name: Include ArgoCD tasks
-#  ansible.builtin.include_tasks: argocd.yml
-#  when: argocd | bool
+- name: Include MetalLB tasks
+  ansible.builtin.include_tasks: metallb.yml
+  when: metallb | bool
+
+- name: Include ArgoCD tasks
+  ansible.builtin.include_tasks: argocd.yml
+  when: argocd | bool
