@@ -5,10 +5,17 @@ variable "pm_user" {
   default     = "root@pam"
 
 }
-variable "pm_password" {
-  description = "The password for the proxmox user"
+variable "pm_api_password" {
+  description = "The password for the proxmox API user"
   type        = string
   sensitive   = true
+}
+
+variable "vm_user_password" {
+  description = "Optional password for the VM host user. Prefer SSH keys."
+  type        = string
+  sensitive   = true
+  default     = null
 }
 
 variable "pm_tls_insecure" {

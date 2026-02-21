@@ -13,7 +13,7 @@ Grab and update the image with qemu-guest-agent
 ```bash
 apt-get install libguestfs-tools
 wget https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
-virt-customize focal-server-cloudimg-amd64.img --install qemu-guest-agent
+virt-customize noble-server-cloudimg-amd64.img --install qemu-guest-agent
 ```
 
 Create the template
@@ -31,7 +31,7 @@ On proxmox server edit the `cloud-init` section for `ubuntu-noble-cloudinit-temp
 Move VM -> template
 
 ```bash
-qm template 9000
+qm template 1002
 ```
 
 ### Tofu setup
@@ -40,6 +40,9 @@ edit `tofu/variables.tfvars` then run tofu to bring up the servers
 
 ```bash
 cd tofu/
+export TF_VAR_pm_api_password="your-proxmox-api-password"
+# optional if you also want password auth on created VMs (SSH keys are already configured)
+# export TF_VAR_vm_user_password="your-vm-user-password"
 tofu init
 tofu plan --var-file=variables.tfvars
 tofu apply --var-file=variables.tfvars
@@ -49,6 +52,9 @@ tofu apply --var-file=variables.tfvars
 
 Tofu setup the following inventory for ansible `ansible/hosts.ini`<br>
 Verify variables in `ansible/group_vars/all.yml`
+- `cert_manager: true` to install cert-manager
+- `cert_manager_create_cloudflare_secret: true` if you want this playbook to create the Cloudflare token secret
+- `argocd: true` to install ArgoCD (this now assumes `cert_manager: true` for TLS/issuer tasks)
 
 Start provisioning of the cluster using the following command:
 

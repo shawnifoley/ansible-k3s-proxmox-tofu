@@ -7,6 +7,9 @@ template_id         = 1002
 num_k3s_workers_mem = 3072
 pool_id             = "dev"
 tags                = ["dev", "k8s"]
+# Set credentials via environment variables (recommended):
+# export TF_VAR_pm_api_password="..."
+# export TF_VAR_vm_user_password="..." # optional
 
 master_ips = [
   "192.168.1.221",

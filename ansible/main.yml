@@ -27,12 +27,18 @@
         prompt: "Enter your Cloudflare API token"
         echo: no
       register: cf_token_prompt
-      when: cloudflare_api_token | length == 0
+      when:
+        - cert_manager | bool
+        - cert_manager_create_cloudflare_secret | bool
+        - cloudflare_api_token | length == 0
 
     - name: Set Cloudflare API token from prompt
       ansible.builtin.set_fact:
         cloudflare_api_token: "{{ cf_token_prompt.user_input }}"
-      when: cloudflare_api_token | length == 0
+      when:
+        - cert_manager | bool
+        - cert_manager_create_cloudflare_secret | bool
+        - cloudflare_api_token | length == 0
 
   roles:
     - role: postconfig/localhost

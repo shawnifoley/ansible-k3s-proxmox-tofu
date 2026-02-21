@@ -1,5 +1,5 @@
 locals {
-  sshkey = file(var.pub_key)
+  sshkey          = file(var.pub_key)
   num_k3s_masters = length(var.master_ips)
   num_k3s_workers = length(var.worker_ips)
 }
@@ -41,7 +41,7 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
 
     user_account {
       keys     = [local.sshkey]
-      password = var.pm_password
+      password = var.vm_user_password
       username = var.host_user
     }
 
@@ -88,7 +88,7 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
 
     user_account {
       keys     = [local.sshkey]
-      password = var.pm_password
+      password = var.vm_user_password
       username = var.host_user
     }
 

@@ -23,6 +23,10 @@
   ansible.builtin.include_tasks: metallb.yml
   when: metallb | bool
 
+- name: Include cert-manager tasks
+  ansible.builtin.include_tasks: cert_manager.yml
+  when: cert_manager | bool
+
 - name: Include ArgoCD tasks
   ansible.builtin.include_tasks: argocd.yml
   when: argocd | bool

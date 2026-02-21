@@ -7,8 +7,13 @@ extra_agent_args: ""
 copy_kubeconfig: true
 
 argocd: false
+argocd_version: "v2.13.3"
 argocd_domain: "argocd.fol3y.us"
 cloudflare_email: "shawnifoley@gmail.com"
+
+cert_manager: false
+cert_manager_version: "1.17.4"
+cert_manager_create_cloudflare_secret: false
 
 metallb: false
 metallb_version: "v0.14.9"
