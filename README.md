@@ -60,6 +60,22 @@ tofu plan --var-file=variables.prod.tfvars
 tofu apply --var-file=variables.prod.tfvars
 ```
 
+Or from repo root using the provided `Makefile` (separate state files by environment):
+
+```bash
+export TF_VAR_pm_api_password="your-proxmox-api-password"
+# optional
+# export TF_VAR_vm_user_password="your-vm-user-password"
+
+# dev uses tofu/terraform.dev.tfstate
+make tofu-plan-dev
+make tofu-apply-dev
+
+# prod uses tofu/terraform.prod.tfstate
+make tofu-plan-prod
+make tofu-apply-prod
+```
+
 ### Ansible setup (per deployment)
 
 Common defaults live in `ansible/group_vars/all.yml`.<br>
@@ -77,6 +93,13 @@ ansible-playbook -i inventory/dev/hosts.ini main.yml
 
 # prod
 ansible-playbook -i inventory/prod/hosts.ini main.yml
+```
+
+Or from repo root:
+
+```bash
+make ansible-dev
+make ansible-prod
 ```
 
 k3s cluster should be up and running with the playbook copying `~/.kube/config`
