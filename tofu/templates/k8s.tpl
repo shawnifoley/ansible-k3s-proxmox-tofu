@@ -1,4 +1,4 @@
-[master]
+[masters]
 %{ for master in k3s_master_ips ~}
 ${master.ip} ansible_ssh_private_key_file=${master.ssh_key}
 %{ endfor ~}
@@ -9,5 +9,5 @@ ${worker.ip} ansible_ssh_private_key_file=${worker.ssh_key}
 %{ endfor ~}
 
 [k3s_cluster:children]
-master
+masters
 workers

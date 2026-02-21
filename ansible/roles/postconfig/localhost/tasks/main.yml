@@ -1,25 +1,27 @@
 ---
-- name: test kubeconfig path
-  stat:
-    path: ~/.kube/config
+- name: Check kubeconfig exists
+  ansible.builtin.stat:
+    path: "{{ lookup('env','HOME') }}/.kube/config"
   register: kubeconfig_path
 
-- name: replace host ip address in the kubeconfig
-  replace:
-    path: ~/.kube/config
-    regexp: "https://127.0.0.1:6443"
-    replace: "https://{{ master_ip }}:6443"
-  when: kubeconfig_path and copy_kubeconfig
+- name: Point kubeconfig to the cluster API endpoint
+  ansible.builtin.replace:
+    path: "{{ lookup('env','HOME') }}/.kube/config"
+    regexp: 'https://(127\.0\.0\.1|localhost):6443'
+    replace: "https://{{ k3s_api_vip | default(master_ip) }}:6443"
+  when:
+    - kubeconfig_path.stat.exists
+    - copy_kubeconfig | bool
 
-- name: Change k3s.yaml permissions to 644
-  file:
-    path: ~/.kube/config
-    mode: "600"
+- name: Lock down kubeconfig permissions
+  ansible.builtin.file:
+    path: "{{ lookup('env','HOME') }}/.kube/config"
+    mode: "0600"
+  when: kubeconfig_path.stat.exists
+#- name: Include MetalLB tasks
+#  ansible.builtin.include_tasks: metallb.yml
+#  when: metallb | bool
 
-- name: Include MetalLB tasks
-  include_tasks: metallb.yml
-  when: metallb
-
-- name: Include ArgoCD tasks
-  include_tasks: argocd.yml
-  when: argocd
+#- name: Include ArgoCD tasks
+#  ansible.builtin.include_tasks: argocd.yml
+#  when: argocd | bool

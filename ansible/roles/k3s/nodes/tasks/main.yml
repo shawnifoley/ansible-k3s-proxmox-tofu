@@ -32,15 +32,22 @@
   ansible.builtin.stat:
     path: /var/lib/rancher/k3s/server/node-token
   register: token_file_stat
-  delegate_to: "{{ groups['master'][0] }}"
+  delegate_to: "{{ groups['masters'][0] }}"
   run_once: true
 
+- name: Generate K3s token on first master (if needed)
+  ansible.builtin.command: /usr/local/bin/k3s token generate
+  register: k3s_token
+  delegate_to: "{{ groups['masters'][0] }}"
+  run_once: true
+  when: not token_file_stat.stat.exists
+
 - name: Generate K3s token
-  delegate_to: "{{ groups['master'][0] }}"
+  delegate_to: "{{ groups['masters'][0] }}"
   run_once: true
   when:
-    - inventory_hostname in groups['master']
-    - inventory_hostname == groups['master'][0]
+    - inventory_hostname in groups['masters']
+    - inventory_hostname == groups['masters'][0]
     - not token_file_stat.stat.exists
 
   block:
@@ -53,22 +60,39 @@
       ansible.builtin.set_fact:
         token: "{{ k3s_token.stdout | split('.') | last }}"
 
+- name: Set is_primary_master fact
+  set_fact:
+    is_primary_master: "{{ inventory_hostname == groups['masters'][0] }}"
+
 - name: Create K3s config directory
   ansible.builtin.file:
     path: /etc/rancher/k3s
     state: directory
     mode: "0755"
 
-# Master
-- name: Include Master tasks
-  include_tasks: master.yml
+- name: Read node-token from first master
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: node_token_slurp
+  delegate_to: "{{ groups['masters'][0] }}"
+  run_once: true
+  when: token is not defined
+
+- name: Set token fact for all hosts
+  ansible.builtin.set_fact:
+    token: "{{ (node_token_slurp.content | b64decode).strip() }}"
   when:
-    - inventory_hostname in groups['master']
+    - node_token_slurp is defined
+    - node_token_slurp.content is defined
+
+- name: Include Master tasks
+  ansible.builtin.include_tasks: master.yml
+  when:
+    - "'masters' in group_names"
     - token is defined
 
-# Workers
 - name: Include Workers tasks
-  include_tasks: workers.yml
+  ansible.builtin.include_tasks: workers.yml
   when:
-    - inventory_hostname in groups['workers']
+    - "'workers' in group_names"
     - token is defined

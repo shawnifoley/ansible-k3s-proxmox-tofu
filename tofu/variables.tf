@@ -45,11 +45,6 @@ variable "pub_key" {
   default     = "~/.ssh/id_rsa.pub"
 }
 
-variable "num_k3s_masters" {
-  type    = number
-  default = 1
-}
-
 variable "cpu_cores" {
   type    = number
   default = 2
@@ -60,10 +55,6 @@ variable "num_k3s_masters_mem" {
   default = 4096
 }
 
-variable "num_k3s_workers" {
-  type    = number
-  default = 2
-}
 
 variable "num_k3s_workers_mem" {
   type    = number

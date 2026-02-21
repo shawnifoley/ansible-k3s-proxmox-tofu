@@ -13,7 +13,7 @@
     namespace: argocd
 
 - name: Install Nginx Ingress Controller
-  community.kubernetes.helm:
+  kubernetes.core.helm:
     name: nginx-ingress
     chart_ref: ingress-nginx
     release_namespace: ingress-nginx
@@ -26,7 +26,7 @@
           enabled: true
 
 - name: Install cert-manager
-  community.kubernetes.helm:
+  kubernetes.core.helm:
     name: cert-manager
     chart_ref: cert-manager
     release_namespace: cert-manager
@@ -37,6 +37,8 @@
     values:
       crds:
         enabled: true
+    wait: true
+    wait_timeout: 600s
 
 - name: Create Cloudflare API Token Secret
   kubernetes.core.k8s:

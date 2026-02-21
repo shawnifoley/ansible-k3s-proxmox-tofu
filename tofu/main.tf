@@ -1,9 +1,11 @@
 locals {
   sshkey = file(var.pub_key)
+  num_k3s_masters = length(var.master_ips)
+  num_k3s_workers = length(var.worker_ips)
 }
 
 resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
-  count     = var.num_k3s_masters
+  count     = local.num_k3s_masters
   name      = "k3s-master${count.index + 1}"
   node_name = var.pm_node_name
   pool_id   = var.pool_id
@@ -50,7 +52,7 @@ resource "proxmox_virtual_environment_vm" "proxmox_vm_master" {
 }
 
 resource "proxmox_virtual_environment_vm" "proxmox_vm_workers" {
-  count     = var.num_k3s_workers
+  count     = local.num_k3s_workers
   name      = "k3s-worker${count.index + 1}"
   node_name = var.pm_node_name
   pool_id   = var.pool_id
