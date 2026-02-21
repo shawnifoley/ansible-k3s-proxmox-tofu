@@ -12,6 +12,9 @@ tofu-plan-dev: tofu-init
 tofu-apply-dev: tofu-init
 	$(TOFU) -chdir=tofu apply -state=terraform.dev.tfstate --var-file=variables.dev.tfvars
 
+tofu-destroy-dev: tofu-init
+	$(TOFU) -chdir=tofu destroy -state=terraform.dev.tfstate --var-file=variables.dev.tfvars
+
 tofu-plan-prod: tofu-init
 	$(TOFU) -chdir=tofu plan -state=terraform.prod.tfstate --var-file=variables.prod.tfvars
 

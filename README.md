@@ -78,8 +78,7 @@ make tofu-apply-prod
 
 ### Ansible setup (per deployment)
 
-Common defaults live in `ansible/group_vars/all.yml`.<br>
-Environment overrides live in:
+All Ansible vars are environment-specific and live in:
 - `ansible/inventory/dev/group_vars/all.yml`
 - `ansible/inventory/prod/group_vars/all.yml`
 

@@ -54,7 +54,7 @@
 - name: Fetch kubeconfig from first master only
   ansible.builtin.fetch:
     src: /etc/rancher/k3s/k3s.yaml
-    dest: "{{ lookup('env','HOME') }}/.kube/config"
+    dest: "{{ lookup('env','HOME') }}/.kube/{{ kubeconfig_name }}"
     flat: true
   run_once: true
   delegate_to: "{{ groups['masters'][0] }}"
