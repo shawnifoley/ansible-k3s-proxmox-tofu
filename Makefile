@@ -21,8 +21,23 @@ tofu-plan-prod: tofu-init
 tofu-apply-prod: tofu-init
 	$(TOFU) -chdir=tofu apply -state=terraform.prod.tfstate --var-file=variables.prod.tfvars
 
+tofu-destroy-prod: tofu-init
+	$(TOFU) -chdir=tofu destroy -state=terraform.prod.tfstate --var-file=variables.prod.tfvars
+
 ansible-dev:
 	cd ansible && $(ANSIBLE_PLAYBOOK) -i inventory/dev/hosts.ini main.yml
 
+reset-ansible-dev:
+	cd ansible && $(ANSIBLE_PLAYBOOK) -i inventory/dev/hosts.ini reset.yml
+
+post-ansible-dev:
+	cd ansible && $(ANSIBLE_PLAYBOOK) -i inventory/dev/hosts.ini postconfig.yml
+
 ansible-prod:
 	cd ansible && $(ANSIBLE_PLAYBOOK) -i inventory/prod/hosts.ini main.yml
+
+post-ansible-prod:
+	cd ansible && $(ANSIBLE_PLAYBOOK) -i inventory/prod/hosts.ini postconfig.yml
+
+reset-ansible-prod:
+	cd ansible && $(ANSIBLE_PLAYBOOK) -i inventory/prod/hosts.ini reset.yml

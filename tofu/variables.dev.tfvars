@@ -11,12 +11,11 @@ tags                = ["dev", "k8s"]
 
 # Set credentials via environment variables (recommended):
 # export TF_VAR_pm_api_password="..."
-# export TF_VAR_vm_user_password="..." # optional
 
 master_ips = [
-  "192.168.1.221",
+  "192.168.1.21",
 ]
 worker_ips = [
-  "192.168.1.222",
-  "192.168.1.223"
+  "192.168.1.22",
+  "192.168.1.23"
 ]

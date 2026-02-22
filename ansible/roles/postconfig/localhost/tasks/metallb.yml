@@ -1,6 +1,7 @@
 ---
 - name: Install MetalLB
   kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_name }}"
     state: present
     src: "https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml"
 
@@ -10,6 +11,7 @@
     kind: Deployment
     name: controller
     namespace: metallb-system
+    kubeconfig: "{{ kubeconfig_name }}"
     wait: true
     wait_timeout: 300
 
@@ -17,6 +19,7 @@
   kubernetes.core.k8s:
     state: present
     namespace: metallb-system
+    kubeconfig: "{{ kubeconfig_name }}"
     definition:
       apiVersion: metallb.io/v1beta1
       kind: IPAddressPool
@@ -30,6 +33,7 @@
   kubernetes.core.k8s:
     state: present
     namespace: metallb-system
+    kubeconfig: "{{ kubeconfig_name }}"
     definition:
       apiVersion: metallb.io/v1beta1
       kind: L2Advertisement

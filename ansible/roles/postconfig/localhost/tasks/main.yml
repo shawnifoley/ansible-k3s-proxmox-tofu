@@ -1,12 +1,12 @@
 ---
 - name: Check kubeconfig exists
   ansible.builtin.stat:
-    path: "{{ lookup('env','HOME') }}/.kube/config"
+    path: "{{ kubeconfig_yaml }}"
   register: kubeconfig_path
 
 - name: Point kubeconfig to the API endpoint
   ansible.builtin.replace:
-    path: "{{ lookup('env','HOME') }}/.kube/{{ kubeconfig_name }}"
+    path: "{{ kubeconfig_yaml }}"
     regexp: 'https://(127\.0\.0\.1|localhost):6443'
     replace: "https://{{ k3s_api_vip | default(master_ip) }}:6443"
   when:
@@ -15,7 +15,7 @@
 
 - name: Lock down kubeconfig permissions
   ansible.builtin.file:
-    path: "{{ lookup('env','HOME') }}/.kube/config"
+    path: "{{ kubeconfig_yaml }}"
     mode: "0600"
   when: kubeconfig_path.stat.exists
 

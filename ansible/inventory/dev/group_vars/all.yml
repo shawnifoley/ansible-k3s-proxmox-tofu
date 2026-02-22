@@ -5,10 +5,10 @@ master_ip: "{{ hostvars[groups['masters'][0]]['ansible_host'] | default(groups['
 extra_server_args: "--write-kubeconfig-mode=644"
 extra_agent_args: ""
 copy_kubeconfig: true
-kubeconfig_name: "kubeconfig-dev.yaml"
+kubeconfig_yaml: "{{ lookup('env','HOME') }}/.kube/kubeconfig-dev.yaml"
 
 argocd: false
-argocd_version: "v2.13.3"
+argocd_version: "v3.3.1"
 argocd_domain: "argocd.fol3y.us"
 cloudflare_email: "shawnifoley@gmail.com"
 
@@ -16,10 +16,9 @@ cert_manager: true
 cert_manager_version: "1.17.4"
 cert_manager_create_cloudflare_secret: true
 
-metallb: false
-metallb_version: "v0.14.9"
-metallb_range: "192.168.1.40-192.168.3.49"
+metallb: true
+metallb_version: "v0.15.3"
+metallb_range: "192.168.1.30-192.168.3.39"
 
-k3s_api_port: 6443
 kubevip_interface: "{{ ansible_default_ipv4.interface }}"
 kubevip_image: "ghcr.io/kube-vip/kube-vip:v0.8.2"

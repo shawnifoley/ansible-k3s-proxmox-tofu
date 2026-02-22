@@ -1,6 +1,7 @@
 pm_host             = "pve.fol3y.us"
 pm_node_name        = "pve2"
 deployment_name     = "prod"
+pm_tls_insecure     = true
 host_user           = "sfoley"
 pub_key             = "~/.ssh/id_ed25519.pub"
 pvt_key             = "~/.ssh/id_ed25519"
@@ -12,7 +13,6 @@ tags                = ["production", "k8s"]
 
 # Set credentials via environment variables (recommended):
 # export TF_VAR_pm_api_password="..."
-# export TF_VAR_vm_user_password="..." # optional
 
 master_ips = [
   "192.168.1.231",
