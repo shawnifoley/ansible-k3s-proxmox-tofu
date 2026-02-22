@@ -14,56 +14,35 @@
     src: "https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml"
     namespace: argocd
 
-- name: Install Nginx Ingress Controller
-  kubernetes.core.helm:
-    kubeconfig: "{{ kubeconfig_yaml }}"
-    name: nginx-ingress
-    chart_ref: ingress-nginx
-    release_namespace: ingress-nginx
-    create_namespace: true
-    chart_repo_url: https://kubernetes.github.io/ingress-nginx
-    release_state: present
-    values:
-      controller:
-        publishService:
-          enabled: true
-
 - name: Ensure cert-manager is enabled for ArgoCD TLS flow
   ansible.builtin.assert:
     that:
       - cert_manager | bool
     fail_msg: "argocd requires cert_manager=true for ClusterIssuer and TLS ingress."
 
-- name: Deploy ArgoCD resources and clean up
-  block:
-    - name: Copy issuer and ingress files
-      ansible.builtin.copy:
-        src: "{{ item }}"
-        dest: "/tmp/{{ item }}"
-      loop:
-        - cluster-issuer-cloudflare.yaml
-        - argocd-ingress.yaml
+- name: Ensure Traefik is enabled for ArgoCD ingress
+  ansible.builtin.assert:
+    that:
+      - traefik | bool
+    fail_msg: "argocd requires traefik=true to expose ArgoCD ingress."
 
-    - name: Apply cluster issuer
-      ansible.builtin.command: kubectl apply -f /tmp/cluster-issuer-cloudflare.yaml
+- name: Apply ClusterIssuer for ArgoCD certificates
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_yaml }}"
+    state: present
+    definition: "{{ lookup('ansible.builtin.template', 'cluster-issuer-cloudflare.yaml.j2') | from_yaml }}"
 
-    - name: Wait for ClusterIssuer letsencrypt-cloudflare to be ready
-      kubernetes.core.k8s:
-        api_version: cert-manager.io/v1
-        kind: ClusterIssuer
-        name: letsencrypt-cloudflare
-        kubeconfig: "{{ kubeconfig_yaml }}"
-        wait: true
-        wait_timeout: 300
+- name: Wait for ClusterIssuer letsencrypt-cloudflare to be ready
+  kubernetes.core.k8s:
+    api_version: cert-manager.io/v1
+    kind: ClusterIssuer
+    name: letsencrypt-cloudflare
+    kubeconfig: "{{ kubeconfig_yaml }}"
+    wait: true
+    wait_timeout: 300
 
-    - name: Apply ArgoCD ingress
-      ansible.builtin.command: kubectl apply -f /tmp/argocd-ingress.yaml
-
-  always:
-    - name: Clean up temporary files
-      ansible.builtin.file:
-        path: "/tmp/{{ item }}"
-        state: absent
-      loop:
-        - cluster-issuer-cloudflare.yaml
-        - argocd-ingress.yaml
+- name: Apply ArgoCD ingress
+  kubernetes.core.k8s:
+    kubeconfig: "{{ kubeconfig_yaml }}"
+    state: present
+    definition: "{{ lookup('ansible.builtin.template', 'argocd-ingress.yaml.j2') | from_yaml }}"

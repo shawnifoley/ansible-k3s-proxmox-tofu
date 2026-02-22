@@ -5,16 +5,16 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: shawnifoley@gmail.com
+    email: "{{ cloudflare_email }}"
     privateKeySecretRef:
       name: letsencrypt-cloudflare-private-key
     solvers:
       - dns01:
           cloudflare:
-            email: shawnifoley@gmail.com
+            email: "{{ cloudflare_email }}"
             apiTokenSecretRef:
-              name: cloudflare-api-token-secret # Name of the Secret we created
-              key: api-token # The key within the Secret
+              name: cloudflare-api-token-secret
+              key: api-token
         selector:
           dnsZones:
-            - "fol3y.us"
+            - "{{ cloudflare_dns_zone | default(argocd_domain | regex_replace('^[^.]+\\.', '')) }}"

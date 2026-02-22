@@ -82,6 +82,11 @@ All Ansible vars are environment-specific and live in:
 - `ansible/inventory/dev/group_vars/all.yml`
 - `ansible/inventory/prod/group_vars/all.yml`
 
+ArgoCD ingress uses external Traefik via Helm (not bundled k3s Traefik).
+Enable/install Traefik and set chart version with:
+- `traefik: true`
+- `traefik_chart_version: "34.6.0"`
+
 Run with the target inventory:
 
 ```bash
