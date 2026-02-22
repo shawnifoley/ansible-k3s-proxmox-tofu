@@ -12,26 +12,27 @@ Grab and update the image with qemu-guest-agent
 
 ```bash
 apt-get install libguestfs-tools
-wget https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
-virt-customize noble-server-cloudimg-amd64.img --install qemu-guest-agent
+wget https://cloud-images.ubuntu.com/releases/jammy/release/ubuntu-22.04-server-cloudimg-amd64.img
+virt-customize -a ubuntu-22.04-server-cloudimg-amd64.img --install qemu-guest-agent
 ```
 
 Create the template
 
 ```bash
-qm create 1002 --name "ubuntu-noble-cloudinit-template" --memory 2048 --net0 virtio,bridge=vmbr0
-mv noble-server-cloudimg-amd64.img noble-server-cloudimg-amd64.qcow2
-qm importdisk 1002 noble-server-cloudimg-amd64.qcow2 local-lvm
-qm set 1002 --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-1002-disk-0
-qm set 1002 --ide2 local-lvm:cloudinit
-qm set 1002 --bootdisk scsi0
+export vmid=1002
+qm create $vmid --name "ubuntu-noble-cloudinit-template" --memory 2048 --net0 virtio,bridge=vmbr0
+mv ubuntu-22.04-server-cloudimg-amd64.img ubuntu-22.04-server-cloudimg-amd64.gcow2
+qm importdisk $vmid ubuntu-22.04-server-cloudimg-amd64.qcow2 local-lvm
+qm set $vmid --scsihw virtio-scsi-pci --scsi0 local-lvm:vm-1002-disk-0
+qm set $vmid --ide2 local-lvm:cloudinit
+qm set $vmid --bootdisk scsi0
 ```
-On proxmox server edit the `cloud-init` section for `ubuntu-noble-cloudinit-template`
+On proxmox server edit the `cloud-init` section for `ubuntu-22.04-server-cloudimg-amd64`
 
 Move VM -> template
 
 ```bash
-qm template 1002
+qm template $vmid
 ```
 
 ### Tofu setup (multi-deployment)
@@ -47,8 +48,6 @@ Each deployment writes inventory to:
 ```bash
 cd tofu/
 export TF_VAR_pm_api_password="your-proxmox-api-password"
-# optional if you also want password auth on created VMs (SSH keys are already configured)
-# export TF_VAR_vm_user_password="your-vm-user-password"
 tofu init
 
 # dev
@@ -64,8 +63,6 @@ Or from repo root using the provided `Makefile` (separate state files by environ
 
 ```bash
 export TF_VAR_pm_api_password="your-proxmox-api-password"
-# optional
-# export TF_VAR_vm_user_password="your-vm-user-password"
 
 # dev uses tofu/terraform.dev.tfstate
 make tofu-plan-dev
@@ -85,7 +82,7 @@ All Ansible vars are environment-specific and live in:
 ArgoCD ingress uses external Traefik via Helm (not bundled k3s Traefik).
 Enable/install Traefik and set chart version with:
 - `traefik: true`
-- `traefik_chart_version: "34.6.0"`
+- `traefik_chart_version: "v39.0.2"`
 
 Run with the target inventory:
 
@@ -106,7 +103,7 @@ make ansible-dev
 make ansible-prod
 ```
 
-k3s cluster should be up and running with the playbook copying `~/.kube/config`
+k3s cluster should be up and running with the playbook copying `~/.kube/kubeconfig-{dev|prod}`
 
 ### Kubernetes
 

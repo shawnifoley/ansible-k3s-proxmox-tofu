@@ -10,13 +10,14 @@ kubeconfig_yaml: "{{ lookup('env','HOME') }}/.kube/kubeconfig-dev.yaml"
 argocd: false
 argocd_version: "v3.3.1"
 argocd_domain: "argocd.fol3y.us"
+
 traefik: true
-traefik_chart_version: "34.6.0"
-cloudflare_email: "shawnifoley@gmail.com"
+traefik_chart_version: "v39.0.2"
 
 cert_manager: true
 cert_manager_version: "1.17.4"
 cert_manager_create_cloudflare_secret: true
+cloudflare_email: "shawnifoley@gmail.com"
 
 metallb: true
 metallb_version: "v0.15.3"

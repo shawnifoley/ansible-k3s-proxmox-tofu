@@ -10,18 +10,19 @@ kubeconfig_yaml: "{{ lookup('env','HOME') }}/.kube/kubeconfig-prod.yaml"
 argocd: false
 argocd_version: "v2.13.3"
 argocd_domain: "argocd.fol3y.us"
+
 traefik: true
-traefik_chart_version: "34.6.0"
-cloudflare_email: "shawnifoley@gmail.com"
+traefik_chart_version: "v39.0.2"
 
 cert_manager: true
 cert_manager_version: "1.17.4"
 cert_manager_create_cloudflare_secret: true
+cloudflare_email: "shawnifoley@gmail.com"
 
 metallb: false
 metallb_version: "v0.14.9"
 metallb_range: "192.168.1.40-192.168.3.49"
 
-k3s_api_vip: 192.168.1.50
+k3s_api_vip: 192.168.1.220
 kubevip_interface: "{{ ansible_default_ipv4.interface }}"
 kubevip_image: "ghcr.io/kube-vip/kube-vip:v0.8.2"
