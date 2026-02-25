@@ -84,6 +84,11 @@ Enable/install Traefik and set chart version with:
 - `traefik: true`
 - `traefik_chart_version: "v39.0.2"`
 
+Longhorn is enabled by default in both `dev` and `prod` inventories:
+- `longhorn: true`
+- `longhorn_chart_version: "1.10.0"`
+Set `longhorn: false` to disable it for an environment.
+
 Run with the target inventory:
 
 ```bash

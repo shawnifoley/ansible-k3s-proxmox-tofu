@@ -5,7 +5,10 @@ host_user           = "sfoley"
 pub_key             = "~/.ssh/id_ed25519.pub"
 pvt_key             = "~/.ssh/id_ed25519"
 template_id         = 1002
-num_k3s_workers_mem = 3072
+cpu_cores           = 4
+num_k3s_masters_mem = 5120
+num_k3s_workers_mem = 5120
+disk_size           = 32
 pool_id             = "dev"
 tags                = ["dev", "k8s"]
 

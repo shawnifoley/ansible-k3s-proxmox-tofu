@@ -68,7 +68,6 @@ variable "num_k3s_masters_mem" {
   default = 4096
 }
 
-
 variable "num_k3s_workers_mem" {
   type    = number
   default = 4096

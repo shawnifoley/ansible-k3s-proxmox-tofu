@@ -27,6 +27,10 @@
   ansible.builtin.include_tasks: cert_manager.yml
   when: cert_manager | bool
 
+- name: Include Longhorn tasks
+  ansible.builtin.include_tasks: longhorn.yml
+  when: longhorn | bool
+
 - name: Include Traefik tasks
   ansible.builtin.include_tasks: traefik.yml
   when: traefik | bool

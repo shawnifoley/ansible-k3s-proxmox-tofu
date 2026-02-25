@@ -19,6 +19,9 @@ cert_manager_version: "1.17.4"
 cert_manager_create_cloudflare_secret: true
 cloudflare_email: "shawnifoley@gmail.com"
 
+longhorn: true
+longhorn_chart_version: "1.10.0"
+
 metallb: false
 metallb_version: "v0.14.9"
 metallb_range: "192.168.1.40-192.168.3.49"
